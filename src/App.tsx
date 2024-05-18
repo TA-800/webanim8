@@ -130,6 +130,7 @@ function App() {
     // eraser -> todo
     SELECT,
     BRUSH,
+    RECT,
     CLEAR,
   }
   const selectToolbarButton = (button: ToolbarButton) => {
@@ -143,6 +144,18 @@ function App() {
       case ToolbarButton.BRUSH:
         setSelectedTool("brush");
         mainFabRef.current!.isDrawingMode = true;
+        break;
+      case ToolbarButton.RECT:
+        const rect = new fabric.Rect({
+          width: 50,
+          height: 50,
+          left: 300,
+          top: 300,
+          fill: mainFabRef.current!.freeDrawingBrush.color,
+          stroke: "black",
+          strokeWidth: 1,
+        });
+        mainFabRef.current!.add(rect);
         break;
       case ToolbarButton.CLEAR:
         clearCanvas();
@@ -527,7 +540,24 @@ function App() {
               />
             </svg>
           </button>
-
+          <button
+            title="Rectangle"
+            className="btn"
+            onClick={() => selectToolbarButton(ToolbarButton.RECT)}
+          >
+            <svg
+              fill="#000000"
+              width="32px"
+              height="32px"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{
+                fill: "black",
+              }}
+            >
+              <path d="M 5 5 L 5 15 L 15 15 L 15 5 L 5 5 z" />
+            </svg>
+          </button>
           <button
             title="Clear"
             className="btn"
@@ -602,7 +632,12 @@ function App() {
               </div>
               <div className="flex flex-row gap-2 items-center">
                 <label>Color</label>
-                <input type="color" />
+                <input
+                  type="color"
+                  onChange={(e) => {
+                    mainFabRef.current!.freeDrawingBrush.color = e.target.value;
+                  }}
+                />
               </div>
             </div>
           )}
