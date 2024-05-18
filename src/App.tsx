@@ -131,6 +131,8 @@ function App() {
     SELECT,
     BRUSH,
     RECT,
+    CIRCLE,
+    LINE,
     CLEAR,
   }
   const selectToolbarButton = (button: ToolbarButton) => {
@@ -153,9 +155,27 @@ function App() {
           top: 300,
           fill: mainFabRef.current!.freeDrawingBrush.color,
           stroke: "black",
-          strokeWidth: 1,
+          strokeWidth: mainFabRef.current!.freeDrawingBrush.width,
         });
         mainFabRef.current!.add(rect);
+        break;
+      case ToolbarButton.CIRCLE:
+        const circle = new fabric.Circle({
+          radius: 25,
+          left: 300,
+          top: 300,
+          fill: mainFabRef.current!.freeDrawingBrush.color,
+          stroke: "black",
+          strokeWidth: mainFabRef.current!.freeDrawingBrush.width,
+        });
+        mainFabRef.current!.add(circle);
+        break;
+      case ToolbarButton.LINE:
+        const line = new fabric.Line([50, 50, 200, 200], {
+          stroke: mainFabRef.current!.freeDrawingBrush.color,
+          strokeWidth: mainFabRef.current!.freeDrawingBrush.width,
+        });
+        mainFabRef.current!.add(line);
         break;
       case ToolbarButton.CLEAR:
         clearCanvas();
@@ -556,6 +576,42 @@ function App() {
               }}
             >
               <path d="M 5 5 L 5 15 L 15 15 L 15 5 L 5 5 z" />
+            </svg>
+          </button>
+          <button
+            title="Circle"
+            className="btn"
+            onClick={() => selectToolbarButton(ToolbarButton.CIRCLE)}
+          >
+            <svg
+              fill="#000000"
+              width="32px"
+              height="32px"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{
+                fill: "black",
+              }}
+            >
+              <circle cx="10" cy="10" r="6" />
+            </svg>
+          </button>
+          <button
+            title="Line"
+            className="btn"
+            onClick={() => selectToolbarButton(ToolbarButton.LINE)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-7 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.75 12.5a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.5a.75.75 0 0 1-.75-.75Z"
+                clipRule="evenodd"
+              />
             </svg>
           </button>
           <button
