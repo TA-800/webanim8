@@ -22,6 +22,9 @@ function App() {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isOnionSkinEnabled, _setIsOnionSkinEnabled] = useState(false);
 
+  // undo stack
+  const undoStack = useRef<any[]>([]);
+
   // animation is playing then interval id is stored here, else null
   const [animationIntervalId, setAnimationIntervalId] = useState<ReturnType<
     typeof setInterval
@@ -133,6 +136,7 @@ function App() {
     RECT,
     CIRCLE,
     LINE,
+    UNDO,
     CLEAR,
   }
   const selectToolbarButton = (button: ToolbarButton) => {
@@ -177,15 +181,55 @@ function App() {
         });
         mainFabRef.current!.add(line);
         break;
+      case ToolbarButton.UNDO:
+        undo();
+        break;
       case ToolbarButton.CLEAR:
         clearCanvas();
         break;
     }
   };
 
+  // javascript methods: shift, pop (to remove), unshift, push (to add)
+  const pushOntoUndoStack = () => {
+    console.log(
+      "saving state onto undo stack, length b4 pushing: ",
+      undoStack.current.length,
+    );
+    if (undoStack.current.length >= 11) {
+      undoStack.current.shift(); // remove first element
+    }
+
+    undoStack.current.push(mainFabRef.current!.toJSON());
+  };
+
+  const undo = () => {
+    if (undoStack.current.length === 1) return;
+
+    console.log("undoing, new length will be: ", undoStack.current.length - 1);
+
+    // turn off event listeners to prevent pushing undo state onto stack
+    mainFabRef.current!.off("object:added");
+    mainFabRef.current!.off("object:modified");
+
+    undoStack.current.pop();
+    mainFabRef.current!.loadFromJSON(
+      undoStack.current[undoStack.current.length - 1],
+      () => {
+        mainFabRef.current!.renderAll();
+
+        // re-enable event listeners
+        mainFabRef.current!.on("object:added", pushOntoUndoStack);
+        mainFabRef.current!.on("object:modified", pushOntoUndoStack);
+      },
+    );
+  };
+
   const clearCanvas = () => {
     // remove everything but background
     mainFabRef.current!.remove(...mainFabRef.current!.getObjects());
+    // save state onto undo stack
+    pushOntoUndoStack();
   };
 
   const renderOnionSkin = () => {
@@ -366,7 +410,15 @@ function App() {
       bgFabRef.current!.renderAll();
     });
 
+    // event listeners for undo on main canvas (modified, added)
+    mainFabRef.current.on("object:modified", pushOntoUndoStack);
+    mainFabRef.current.on("object:added", pushOntoUndoStack);
+
     return () => {
+      // cleanup
+      mainFabRef.current?.off("object:modified", pushOntoUndoStack);
+      mainFabRef.current?.off("object:added", pushOntoUndoStack);
+
       mainFabRef.current?.dispose();
       onionFabRef.current?.dispose();
       bgFabRef.current?.dispose();
@@ -610,6 +662,24 @@ function App() {
               <path
                 fillRule="evenodd"
                 d="M4.75 12.5a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.5a.75.75 0 0 1-.75-.75Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          <button
+            title="Undo"
+            className="btn"
+            onClick={() => selectToolbarButton(ToolbarButton.UNDO)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6 rotate-90 -translate-y-0.5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M15 3.75A5.25 5.25 0 0 0 9.75 9v10.19l4.72-4.72a.75.75 0 1 1 1.06 1.06l-6 6a.75.75 0 0 1-1.06 0l-6-6a.75.75 0 1 1 1.06-1.06l4.72 4.72V9a6.75 6.75 0 0 1 13.5 0v3a.75.75 0 0 1-1.5 0V9c0-2.9-2.35-5.25-5.25-5.25Z"
                 clipRule="evenodd"
               />
             </svg>
