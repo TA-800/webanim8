@@ -17,12 +17,73 @@ function App() {
 
   const [fps, setFps] = useState(24);
   // TODO: use better type for frames
-  const [frames, setFrames] = useState<any[]>([]);
+  const [frames, setFrames] = useState<any[]>([null]);
   const [currentFrame, setCurrentFrame] = useState(0);
   const [onionSkin, setOnionSkin] = useState(false);
 
-  // frame rendering on current frame change
-  // TODO
+  /**
+   * HELPER FUNCTIONS
+   */
+  const saveFrameState = () => {
+    setFrames((prev) => {
+      const newFrames = [...prev];
+      newFrames[currentFrame] = mainFabRef.current!.toJSON();
+      return newFrames;
+    });
+  };
+
+  const moveToFrame = (index: number) => {
+    setCurrentFrame(index);
+  };
+
+  const addNewFrame = () => {
+    // insert new frame after current frame
+    setFrames((prev) => {
+      const newFrames = [...prev];
+      newFrames.splice(currentFrame + 1, 0, mainFabRef.current!.toJSON());
+      return newFrames;
+    });
+
+    moveToFrame(currentFrame + 1);
+  };
+
+  enum TimelineButton {
+    PLAY,
+    NEW_KEYFRAME,
+    TIMELINE_KEYFRAME,
+  }
+  type TimelineButtonProps =
+    | {
+        button: TimelineButton.PLAY | TimelineButton.NEW_KEYFRAME;
+      }
+    | {
+        button: TimelineButton.TIMELINE_KEYFRAME;
+        index: number;
+      };
+  const selectTimelineButton = (props: TimelineButtonProps) => {
+    saveFrameState();
+
+    switch (props.button) {
+      case TimelineButton.PLAY:
+        playAnimation();
+        break;
+      case TimelineButton.NEW_KEYFRAME:
+        addNewFrame();
+        break;
+      case TimelineButton.TIMELINE_KEYFRAME:
+        moveToFrame(props.index);
+        break;
+    }
+  };
+
+  const clearCanvas = () => {
+    // remove everything but background
+    mainFabRef.current!.remove(...mainFabRef.current!.getObjects());
+  };
+
+  const playAnimation = () => {
+    //TODO
+  };
   const changeBackgroundColor = (color: string) => {
     bgFabRef.current!.setBackgroundColor(color, () => {
       bgFabRef.current!.renderAll();
@@ -33,6 +94,22 @@ function App() {
     // TODO: implement onion skin
   };
 
+  // frame rendering on current frame change
+  // TODO
+
+  useEffect(() => {
+    if (mainFabRef.current) {
+      if (!mainFabRef.current.isEmpty() && frames[currentFrame] === null) {
+        clearCanvas();
+        return;
+      }
+    }
+
+    mainFabRef.current?.loadFromJSON(frames[currentFrame], () => {
+      mainFabRef.current!.renderAll();
+    });
+  }, [currentFrame]);
+
   // initialization
   useEffect(() => {
     mainFabRef.current = new fabric.Canvas(mainCanvasRef.current);
@@ -41,6 +118,8 @@ function App() {
 
     // set freedrawing mode during startup
     mainFabRef.current.isDrawingMode = true;
+
+    //
 
     return () => {
       mainFabRef.current?.dispose();
@@ -53,7 +132,12 @@ function App() {
     /* MAIN WRAPPER, make grid to center the content */
     <div className="grid grid-cols-1 grid-rows-1 w-full h-full place-items-center out">
       <div className="out w-full flex flex-row flex-wrap gap-2 p-2 justify-center">
-        <button className="btn">
+        <button
+          className="btn"
+          onClick={() => {
+            selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME });
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -67,7 +151,13 @@ function App() {
             />
           </svg>
         </button>
-        <button className="btn">
+        <button
+          className="btn"
+          onClick={() => {
+            // TODO
+            // selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME });
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -78,7 +168,12 @@ function App() {
             <path d="M15 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 17.25 7.5h-1.875A.375.375 0 0 1 15 7.125V5.25ZM4.875 6H6v10.125A3.375 3.375 0 0 0 9.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V7.875C3 6.839 3.84 6 4.875 6Z" />
           </svg>
         </button>
-        <button className="btn">
+        <button
+          className="btn"
+          onClick={() => {
+            selectTimelineButton({ button: TimelineButton.PLAY });
+          }}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -91,12 +186,20 @@ function App() {
         {/* TIMELINE LIST */}
         {/* Force frame list to be on next flex line in entire wrapper, do this by taking full width*/}
         <div className="overflow-x-scroll w-full flex flex-row gap-2">
-          {frames.map((frame, index) => {
+          {frames.map((_, index) => {
             return (
               <div
                 key={index}
-                className={`bg-blue-300 text-blue-900 hover:bg-blue-400 ${currentFrame === index ? "bg-blue-900 text-blue-300" : ""} `}
-              />
+                onClick={() => {
+                  selectTimelineButton({
+                    button: TimelineButton.TIMELINE_KEYFRAME,
+                    index: index,
+                  });
+                }}
+                className={`p-2 bg-blue-300 text-blue-900 hover:bg-blue-400 ${currentFrame !== index ? "bg-blue-900 text-blue-300" : ""} `}
+              >
+                {index}
+              </div>
             );
           })}
         </div>
