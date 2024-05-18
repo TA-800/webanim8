@@ -14,7 +14,9 @@ function App() {
   const bgCanvasRef = useRef(null);
 
   // animation states & properties
-  const [selectedTool, setSelectedTool] = useState<"select" | "brush">("brush");
+  const [selectedTool, setSelectedTool] = useState<
+    "select" | "brush" | "eraser"
+  >("brush");
 
   const [fps, setFps] = useState(24);
   // TODO: use better type for frames
@@ -131,6 +133,8 @@ function App() {
         break;
       case ToolbarButton.ERASER:
         // TODO
+        mainFabRef.current!.isDrawingMode = false;
+        setSelectedTool("eraser");
         break;
       case ToolbarButton.CLEAR:
         clearCanvas();
@@ -316,6 +320,11 @@ function App() {
     // set freedrawing mode during startup (sync with default selected tool state)
     mainFabRef.current.isDrawingMode = true;
 
+    // initialize bg color to white
+    bgFabRef.current.setBackgroundColor("white", () => {
+      bgFabRef.current!.renderAll();
+    });
+
     return () => {
       mainFabRef.current?.dispose();
       onionFabRef.current?.dispose();
@@ -324,12 +333,12 @@ function App() {
   }, []);
 
   return (
-    /* MAIN WRAPPER, make grid to center the content */
-    <div className="grid grid-cols-1 grid-rows-1 w-full h-full place-items-center out">
+    /* MAIN WRAPPER */
+    <div className="w-full h-full bg-gray-200">
       {/**
        * TIMELINE
        */}
-      <div className="w-full bg-gray-200 flex flex-row flex-wrap gap-2 p-2 justify-center">
+      <div className="w-full flex flex-row flex-wrap gap-2 p-2 justify-center">
         <button
           title="Add frame"
           className="btn"
@@ -404,7 +413,7 @@ function App() {
         </button>
         {/* TIMELINE LIST */}
         {/* Force frame list to be on next flex line in entire wrapper, do this by taking full width*/}
-        <div className="overflow-x-scroll w-full flex flex-row gap-2 p-2">
+        <div className="overflow-x-scroll w-full bg-gray-300 flex flex-row gap-2 p-2">
           {frames.map((_, index) => {
             return (
               <div
@@ -425,139 +434,169 @@ function App() {
       </div>
 
       {/**
-       * CANVAS
+       * MIDDLE WRAPPER
        */}
-      <div className="relative grid grid-cols-1 grid-rows-1 w-[600px] h-[600px]">
-        {/* BACKGROUND CANVAS */}
-        <div className="absolute top-0 left-0 out">
-          <canvas width={600} height={600} ref={bgCanvasRef} />
-        </div>
-        {/* ONION CANVAS */}
-        <div className="absolute top-0 left-0 out">
-          <canvas width={600} height={600} ref={onionCanvasRef} />
-        </div>
-        {/* MAIN CANVAS */}
-        <div className="absolute top-0 left-0 out">
-          <canvas width={600} height={600} ref={mainCanvasRef} />
-        </div>
-      </div>
-
-      {/**
-       * TOOLBAR
-       */}
-      <div className="w-full bg-gray-200 flex justify-center gap-2 p-2">
-        <button
-          title="Select"
-          className={`toggle ${selectedTool === "select" ? "toggle-active" : ""}`}
-          onClick={() => {
-            selectToolbarButton(ToolbarButton.SELECT);
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              fillRule="evenodd"
-              d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-        <button
-          title="Brush"
-          className={`toggle ${selectedTool === "brush" ? "toggle-active" : ""}`}
-          onClick={() => selectToolbarButton(ToolbarButton.BRUSH)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              fillRule="evenodd"
-              d="M20.599 1.5c-.376 0-.743.111-1.055.32l-5.08 3.385a18.747 18.747 0 0 0-3.471 2.987 10.04 10.04 0 0 1 4.815 4.815 18.748 18.748 0 0 0 2.987-3.472l3.386-5.079A1.902 1.902 0 0 0 20.599 1.5Zm-8.3 14.025a18.76 18.76 0 0 0 1.896-1.207 8.026 8.026 0 0 0-4.513-4.513A18.75 18.75 0 0 0 8.475 11.7l-.278.5a5.26 5.26 0 0 1 3.601 3.602l.502-.278ZM6.75 13.5A3.75 3.75 0 0 0 3 17.25a1.5 1.5 0 0 1-1.601 1.497.75.75 0 0 0-.7 1.123 5.25 5.25 0 0 0 9.8-2.62 3.75 3.75 0 0 0-3.75-3.75Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-        <button
-          title="Clear"
-          className="btn"
-          onClick={() => selectToolbarButton(ToolbarButton.CLEAR)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              fillRule="evenodd"
-              d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
-
-      {/**
-       * PROPERTIES
-       */}
-      <div className="w-full bg-gray-300 flex flex-wrap justify-center">
-        <div className="w-full flex justify-center gap-2 p-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              fillRule="evenodd"
-              d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 0 0-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.875 1.875 0 0 0-2.282.819l-.922 1.597a1.875 1.875 0 0 0 .432 2.385l.84.692c.095.078.17.229.154.43a7.598 7.598 0 0 0 0 1.139c.015.2-.059.352-.153.43l-.841.692a1.875 1.875 0 0 0-.432 2.385l.922 1.597a1.875 1.875 0 0 0 2.282.818l1.019-.382c.115-.043.283-.031.45.082.312.214.641.405.985.57.182.088.277.228.297.35l.178 1.071c.151.904.933 1.567 1.85 1.567h1.844c.916 0 1.699-.663 1.85-1.567l.178-1.072c.02-.12.114-.26.297-.349.344-.165.673-.356.985-.57.167-.114.335-.125.45-.082l1.02.382a1.875 1.875 0 0 0 2.28-.819l.923-1.597a1.875 1.875 0 0 0-.432-2.385l-.84-.692c-.095-.078-.17-.229-.154-.43a7.614 7.614 0 0 0 0-1.139c-.016-.2.059-.352.153-.43l.84-.692c.708-.582.891-1.59.433-2.385l-.922-1.597a1.875 1.875 0 0 0-2.282-.818l-1.02.382c-.114.043-.282.031-.449-.083a7.49 7.49 0 0 0-.985-.57c-.183-.087-.277-.227-.297-.348l-.179-1.072a1.875 1.875 0 0 0-1.85-1.567h-1.843ZM12 15.75a3.75 3.75 0 1 0 0-7.5 3.75 3.75 0 0 0 0 7.5Z"
-              clipRule="evenodd"
-            />
-          </svg>
-          <span className="font-bold">PROPERTIES</span>
-        </div>
-        {selectedTool === "select" && (
-          <div>
-            <div className="flex flex-row gap-2 items-center">
-              <label>Background</label>
-              <input
-                type="color"
-                onChange={(e) => {
-                  bgFabRef.current!.setBackgroundColor(e.target.value, () => {
-                    bgFabRef.current!.renderAll();
-                  });
-                }}
-              />
-            </div>
-            <div className="flex flex-row gap-2 items-center">
-              <label>Frame Rate</label>
-              <input
-                type="number"
-                value={fps}
-                onChange={(e) => setFps(parseInt(e.target.value))}
-              />
-            </div>
-            <div className="flex flex-row gap-2 items-center">
-              <label>Onion Skin</label>
-              <input
-                type="checkbox"
-                onChange={(e) => {
-                  setIsOnionSkinEnabled(e.target.checked);
-                }}
-              />
-            </div>
+      <div className="w-full flex gap-2 mt-2 justify-center">
+        {/**
+         * CANVASES
+         */}
+        <div className="relative grid grid-cols-1 grid-rows-1 w-[600px] h-[600px]">
+          {/* BACKGROUND CANVAS */}
+          <div className="absolute top-0 left-0 out">
+            <canvas width={600} height={600} ref={bgCanvasRef} />
           </div>
-        )}
-        {selectedTool === "brush" && (
-          <div>
-            <div className="flex flex-row gap-2 items-center">
+          {/* ONION CANVAS */}
+          <div className="absolute top-0 left-0 out">
+            <canvas width={600} height={600} ref={onionCanvasRef} />
+          </div>
+          {/* MAIN CANVAS */}
+          <div className="absolute top-0 left-0 out">
+            <canvas width={600} height={600} ref={mainCanvasRef} />
+          </div>
+        </div>
+
+        {/**
+         * TOOLBAR
+         */}
+        <div className="h-full w-24 flex flex-col items-center gap-2 p-2">
+          <button
+            title="Select"
+            className={`toggle ${selectedTool === "select" ? "toggle-active" : ""}`}
+            onClick={() => {
+              selectToolbarButton(ToolbarButton.SELECT);
+            }}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+
+          <button
+            title="Brush"
+            className={`toggle ${selectedTool === "brush" ? "toggle-active" : ""}`}
+            onClick={() => selectToolbarButton(ToolbarButton.BRUSH)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M20.599 1.5c-.376 0-.743.111-1.055.32l-5.08 3.385a18.747 18.747 0 0 0-3.471 2.987 10.04 10.04 0 0 1 4.815 4.815 18.748 18.748 0 0 0 2.987-3.472l3.386-5.079A1.902 1.902 0 0 0 20.599 1.5Zm-8.3 14.025a18.76 18.76 0 0 0 1.896-1.207 8.026 8.026 0 0 0-4.513-4.513A18.75 18.75 0 0 0 8.475 11.7l-.278.5a5.26 5.26 0 0 1 3.601 3.602l.502-.278ZM6.75 13.5A3.75 3.75 0 0 0 3 17.25a1.5 1.5 0 0 1-1.601 1.497.75.75 0 0 0-.7 1.123 5.25 5.25 0 0 0 9.8-2.62 3.75 3.75 0 0 0-3.75-3.75Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+
+          <button
+            title="Eraser"
+            className={`toggle ${selectedTool === "eraser" ? "toggle-active" : ""}`}
+            onClick={() => selectToolbarButton(ToolbarButton.ERASER)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              id="Layer_1"
+              data-name="Layer 1"
+              viewBox="0 0 24 24"
+              width="22"
+              height="22"
+              style={{ fill: "white" }}
+            >
+              <path d="m7.242,7.438L12.751,1.911c1.17-1.175,3.213-1.175,4.383,0l5.935,5.955c1.206,1.21,1.206,3.179,0,4.389l-5.506,5.525L7.242,7.438Zm7.111,13.562l1.798-1.804L5.83,8.855.882,13.82c-1.206,1.21-1.206,3.179,0,4.389l4.774,4.791h18.344v-2h-9.647Z" />
+            </svg>
+          </button>
+
+          <button
+            title="Clear"
+            className="btn"
+            onClick={() => selectToolbarButton(ToolbarButton.CLEAR)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        {/**
+         * PROPERTIES PANEL
+         */}
+        <div className="h-full">
+          {selectedTool === "select" && (
+            <div className="propsPanel">
+              <div className="flex flex-row gap-2 items-center">
+                <label>Background</label>
+                <input
+                  type="color"
+                  onChange={(e) => {
+                    bgFabRef.current!.setBackgroundColor(e.target.value, () => {
+                      bgFabRef.current!.renderAll();
+                    });
+                  }}
+                />
+              </div>
+              <div className="flex flex-row gap-2 items-center">
+                <label>Frame Rate</label>
+                <input
+                  type="number"
+                  value={fps}
+                  onChange={(e) => setFps(parseInt(e.target.value))}
+                />
+              </div>
+              <div className="flex flex-row gap-2 items-center">
+                <label>Onion Skin</label>
+                <input
+                  type="checkbox"
+                  onChange={(e) => {
+                    setIsOnionSkinEnabled(e.target.checked);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          {selectedTool === "brush" && (
+            <div className="propsPanel">
+              <div className="flex flex-row gap-2 items-center">
+                <label>Size</label>
+                <input
+                  type="range"
+                  defaultValue={1}
+                  min={1}
+                  max={50}
+                  step={1}
+                  onChange={(e) => {
+                    mainFabRef.current!.freeDrawingBrush.width = parseInt(
+                      e.target.value,
+                    );
+                  }}
+                />
+              </div>
+              <div className="flex flex-row gap-2 items-center">
+                <label>Color</label>
+                <input type="color" />
+              </div>
+            </div>
+          )}
+          {selectedTool === "eraser" && (
+            <div className="propsPanel">
               <label>Size</label>
               <input
                 type="range"
@@ -565,19 +604,11 @@ function App() {
                 min={1}
                 max={50}
                 step={1}
-                onChange={(e) => {
-                  mainFabRef.current!.freeDrawingBrush.width = parseInt(
-                    e.target.value,
-                  );
-                }}
+                onChange={() => {}}
               />
             </div>
-            <div className="flex flex-row gap-2 items-center">
-              <label>Color</label>
-              <input type="color" />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
