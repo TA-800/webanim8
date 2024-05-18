@@ -40,7 +40,8 @@ function App() {
     // insert new frame after current frame
     setFrames((prev) => {
       const newFrames = [...prev];
-      newFrames.splice(currentFrame + 1, 0, mainFabRef.current!.toJSON());
+      // newFrames.splice(currentFrame + 1, 0, mainFabRef.current!.toJSON());
+      newFrames.splice(currentFrame + 1, 0, null);
       return newFrames;
     });
 
@@ -95,8 +96,6 @@ function App() {
   };
 
   // frame rendering on current frame change
-  // TODO
-
   useEffect(() => {
     if (mainFabRef.current) {
       if (!mainFabRef.current.isEmpty() && frames[currentFrame] === null) {
@@ -196,7 +195,7 @@ function App() {
                     index: index,
                   });
                 }}
-                className={`p-2 hover:bg-blue-400 ${currentFrame === index ? "bg-blue-900 text-blue-300" : "bg-blue-300 text-blue-900"}`}
+                className={`p-2 cursor-pointer ${currentFrame === index ? "bg-blue-900 text-blue-300" : "bg-blue-300 text-blue-900"}`}
               >
                 {index}
               </div>
