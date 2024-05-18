@@ -239,7 +239,7 @@ function App() {
        */}
       <div className="w-full bg-gray-200 flex flex-row flex-wrap gap-2 p-2 justify-center">
         <button
-          className="btn"
+          className="toggle"
           onClick={() =>
             selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME })
           }
@@ -258,7 +258,7 @@ function App() {
           </svg>
         </button>
         <button
-          className="btn"
+          className="toggle"
           onClick={() =>
             selectTimelineButton({ button: TimelineButton.DUP_KEYFRAME })
           }
@@ -367,7 +367,7 @@ function App() {
           </svg>
         </button>
         <button
-          className="btn"
+          className="toggle"
           onClick={() => selectToolbarButton(ToolbarButton.CLEAR)}
         >
           <svg

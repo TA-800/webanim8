@@ -6,6 +6,10 @@
     .out { 
         @apply outline outline-black;
     }
+    .toggle
+    {
+        @apply p-2 border-2 border-black/25 text-black rounded-md hover:bg-black/10 active:bg-black/20;
+    }
     .btn {
         @apply p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md;
     }
