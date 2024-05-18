@@ -40,7 +40,6 @@ function App() {
     // insert new frame after current frame
     setFrames((prev) => {
       const newFrames = [...prev];
-      // newFrames.splice(currentFrame + 1, 0, mainFabRef.current!.toJSON());
       newFrames.splice(currentFrame + 1, 0, null);
       return newFrames;
     });
@@ -48,14 +47,26 @@ function App() {
     moveToFrame(currentFrame + 1);
   };
 
+  const duplicateFrame = () => {
+    // insert new frame after current frame
+    setFrames((prev) => {
+      const newFrames = [...prev];
+      newFrames.splice(currentFrame + 1, 0, mainFabRef.current!.toJSON());
+      return newFrames;
+    });
+
+    moveToFrame(currentFrame + 1);
+  };
+
   enum TimelineButton {
-    PLAY,
     NEW_KEYFRAME,
+    DUP_KEYFRAME,
+    PLAY,
     TIMELINE_KEYFRAME,
   }
   type TimelineButtonProps =
     | {
-        button: TimelineButton.PLAY | TimelineButton.NEW_KEYFRAME;
+        button: Exclude<TimelineButton, TimelineButton.TIMELINE_KEYFRAME>;
       }
     | {
         button: TimelineButton.TIMELINE_KEYFRAME;
@@ -71,8 +82,36 @@ function App() {
       case TimelineButton.NEW_KEYFRAME:
         addNewFrame();
         break;
+      case TimelineButton.DUP_KEYFRAME:
+        duplicateFrame();
+        break;
       case TimelineButton.TIMELINE_KEYFRAME:
         moveToFrame(props.index);
+        break;
+    }
+  };
+
+  enum ToolbarButton {
+    // eraser -> todo
+    SELECT,
+    BRUSH,
+    ERASER,
+  }
+  const selectToolbarButton = (button: ToolbarButton) => {
+    saveFrameState();
+
+    mainFabRef.current!.isDrawingMode = false;
+
+    switch (button) {
+      case ToolbarButton.SELECT:
+        setSelectedTool("select");
+        break;
+      case ToolbarButton.BRUSH:
+        setSelectedTool("brush");
+        mainFabRef.current!.isDrawingMode = true;
+        break;
+      case ToolbarButton.ERASER:
+        // TODO
         break;
     }
   };
@@ -115,10 +154,8 @@ function App() {
     onionFabRef.current = new fabric.Canvas(onionCanvasRef.current);
     bgFabRef.current = new fabric.Canvas(bgCanvasRef.current);
 
-    // set freedrawing mode during startup
+    // set freedrawing mode during startup (sync with default selected tool state)
     mainFabRef.current.isDrawingMode = true;
-
-    //
 
     return () => {
       mainFabRef.current?.dispose();
@@ -133,9 +170,9 @@ function App() {
       <div className="out w-full flex flex-row flex-wrap gap-2 p-2 justify-center">
         <button
           className="btn"
-          onClick={() => {
-            selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME });
-          }}
+          onClick={() =>
+            selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME })
+          }
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -152,10 +189,9 @@ function App() {
         </button>
         <button
           className="btn"
-          onClick={() => {
-            // TODO
-            // selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME });
-          }}
+          onClick={() =>
+            selectTimelineButton({ button: TimelineButton.DUP_KEYFRAME })
+          }
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -169,9 +205,7 @@ function App() {
         </button>
         <button
           className="btn"
-          onClick={() => {
-            selectTimelineButton({ button: TimelineButton.PLAY });
-          }}
+          onClick={() => selectTimelineButton({ button: TimelineButton.PLAY })}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -204,6 +238,9 @@ function App() {
         </div>
       </div>
 
+      {/**
+       * CANVAS
+       */}
       <div className="relative grid grid-cols-1 grid-rows-1 w-[600px] h-[600px]">
         {/* BACKGROUND CANVAS */}
         <div className="absolute top-0 left-0 out">
@@ -218,12 +255,15 @@ function App() {
           <canvas width={600} height={600} ref={mainCanvasRef} />
         </div>
       </div>
+
+      {/**
+       * TOOLBAR
+       */}
       <div className="flex flex-row gap-2 p-2 out">
         <button
           className={`btn ${selectedTool === "select" ? "btn-active" : ""}`}
-          onClick={(e) => {
-            mainFabRef.current!.isDrawingMode = false;
-            setSelectedTool("select");
+          onClick={() => {
+            selectToolbarButton(ToolbarButton.SELECT);
           }}
         >
           <svg
@@ -241,10 +281,7 @@ function App() {
         </button>
         <button
           className={`btn ${selectedTool === "brush" ? "btn-active" : ""}`}
-          onClick={(e) => {
-            mainFabRef.current!.isDrawingMode = true;
-            setSelectedTool("brush");
-          }}
+          onClick={() => selectToolbarButton(ToolbarButton.BRUSH)}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -261,6 +298,9 @@ function App() {
         </button>
       </div>
 
+      {/**
+       * PROPERTIES
+       */}
       <div className="out">
         PROPERTIES
         {selectedTool === "select" && (
