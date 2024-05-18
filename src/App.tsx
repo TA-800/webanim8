@@ -196,7 +196,7 @@ function App() {
                     index: index,
                   });
                 }}
-                className={`p-2 bg-blue-300 text-blue-900 hover:bg-blue-400 ${currentFrame !== index ? "bg-blue-900 text-blue-300" : ""} `}
+                className={`p-2 hover:bg-blue-400 ${currentFrame === index ? "bg-blue-900 text-blue-300" : "bg-blue-300 text-blue-900"}`}
               >
                 {index}
               </div>
