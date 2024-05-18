@@ -26,7 +26,8 @@ function App() {
   const [animationIntervalId, setAnimationIntervalId] = useState<ReturnType<
     typeof setInterval
   > | null>(null);
-  const [isExportingGif, setIsExportingGif] = useState(false);
+  // 0 : not exporting, 1 : preparing to export, 2 : exporting
+  const [isExportingGif, setIsExportingGif] = useState<0 | 1 | 2>(0);
 
   // common onion skin is-renderable conditions
   const onionToRender =
@@ -191,26 +192,6 @@ function App() {
     setAnimationIntervalId(intervalId);
   };
 
-  const setBackgroundForExport = () => {
-    setFrames((prev) => {
-      const newFrames = [...prev];
-      newFrames.forEach((frame) => {
-        frame.backgroundColor = "white";
-      });
-      return newFrames;
-    });
-  };
-
-  const unsetBackgroundAfterExport = () => {
-    setFrames((prev) => {
-      const newFrames = [...prev];
-      newFrames.forEach((frame) => {
-        frame.backgroundColor = "transparent";
-      });
-      return newFrames;
-    });
-  };
-
   /**
    * Gif Exporting
    */
@@ -220,19 +201,14 @@ function App() {
     if (animationIntervalId) {
       selectTimelineButton({ button: TimelineButton.PLAY });
     }
-    // mainFabRef.current!.setBackgroundColor("white", () => {
-    //   setIsExportingGif(true);
-    // });
 
-    // set all frames to white background
-    setBackgroundForExport();
-    // todo: undo this after exporting gif
-
-    setIsExportingGif(true);
+    moveToFrame(frames.length - 1);
+    // prepare to export (by first moving to last frame then setting isExportingGif to 1)
+    setIsExportingGif(1);
   };
 
   useEffect(() => {
-    if (!isExportingGif) return;
+    if (isExportingGif !== 2) return;
 
     console.log("Exporting gif");
 
@@ -243,17 +219,34 @@ function App() {
       workerScript: "node_modules/gif.js/dist/gif.worker.js",
     });
 
-    // set background
-    // (todo)
-    // mainFabRef.current!.backgroundColor = bgFabRef.current!.backgroundColor;
-    // Everything is called in callback to ensure things happen sequentially (something shouldn't be called before previous async-nature operation completes)
+    // use new array to avoid background conflicts
+    // create new deep copy of frames
+    const exportFrames = frames.map((frame) =>
+      JSON.parse(JSON.stringify(frame)),
+    );
+
+    exportFrames.forEach((frame) => {
+      // set background (todo) = bgFabRef.current.background
+      // if transparent, set to white
+      let bg = bgFabRef.current!.backgroundColor;
+      switch (bg) {
+        case "":
+        case null:
+        case "transparent":
+          bg = "white";
+          break;
+      }
+      frame.background = bg;
+    });
 
     // LOOP
-    frames.forEach((frame) => {
+    exportFrames.forEach((frame) => {
       clearCanvas();
 
       mainFabRef.current!.loadFromJSON(frame, () => {
-        mainFabRef.current!.renderAll();
+        if (frame !== null) {
+          mainFabRef.current!.renderAll();
+        }
         encoder.addFrame(mainFabRef.current!.getElement(), {
           copy: true,
           delay: 1000 / fps,
@@ -274,12 +267,12 @@ function App() {
 
     encoder.render();
 
-    // todo: move back to original frame
-
-    // reset background (todo)
-    unsetBackgroundAfterExport();
-
-    setIsExportingGif(false);
+    // Reset isExportingGif to 0 after exporting
+    mainFabRef.current!.loadFromJSON(frames[frames.length - 1], () => {
+      // load original last frame back to canvas
+      mainFabRef.current!.renderAll();
+      setIsExportingGif(0);
+    });
   }, [isExportingGif]);
 
   /**
@@ -303,13 +296,15 @@ function App() {
     // throws error "ctx is null" if isEmpty check not done before calling clear here
     if (!mainFabRef.current.isEmpty() && frames[currentFrame] === null) {
       clearCanvas();
-      return;
+    } else {
+      // else, load drawing state from frames[currentFrame]
+      mainFabRef.current.loadFromJSON(frames[currentFrame], () => {
+        mainFabRef.current!.renderAll();
+      });
     }
-
-    // else, load drawing state from frames[currentFrame]
-    mainFabRef.current.loadFromJSON(frames[currentFrame], () => {
-      mainFabRef.current!.renderAll();
-    });
+    if (isExportingGif === 1) {
+      setIsExportingGif(2);
+    }
   }, [currentFrame]);
 
   // initialization
