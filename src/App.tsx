@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
+import { GifEncoder } from "@skyra/gifenc";
 
 function App() {
   // Fabric refs
@@ -22,9 +23,9 @@ function App() {
   const [isOnionSkinEnabled, _setIsOnionSkinEnabled] = useState(false);
 
   // animation is playing then interval id is stored here, else null
-  const [animationIntervalId, setAnimationIntervalId] = useState<number | null>(
-    null,
-  );
+  const [animationIntervalId, setAnimationIntervalId] = useState<ReturnType<
+    typeof setInterval
+  > | null>(null);
 
   // common onion skin is-renderable conditions
   const onionToRender =
