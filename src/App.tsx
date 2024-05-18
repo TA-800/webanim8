@@ -26,6 +26,7 @@ function App() {
   const [animationIntervalId, setAnimationIntervalId] = useState<ReturnType<
     typeof setInterval
   > | null>(null);
+  const [isExportingGif, setIsExportingGif] = useState(false);
 
   // common onion skin is-renderable conditions
   const onionToRender =
@@ -75,6 +76,7 @@ function App() {
     NEW_KEYFRAME,
     DUP_KEYFRAME,
     PLAY,
+    EXPORT,
     TIMELINE_KEYFRAME,
   }
   type TimelineButtonProps =
@@ -97,6 +99,9 @@ function App() {
         break;
       case TimelineButton.DUP_KEYFRAME:
         duplicateFrame();
+        break;
+      case TimelineButton.EXPORT:
+        exportGif();
         break;
       case TimelineButton.TIMELINE_KEYFRAME:
         moveToFrame(props.index);
@@ -185,6 +190,41 @@ function App() {
     }, 1000 / fps);
     setAnimationIntervalId(intervalId);
   };
+
+  /**
+   * Gif Exporting
+   */
+  const exportGif = () => {
+    // stop playing animation if it is playing
+    if (frames.length <= 1) return;
+    if (animationIntervalId) {
+      selectTimelineButton({ button: TimelineButton.PLAY });
+    }
+    setIsExportingGif(true);
+  };
+
+  useEffect(() => {
+    console.log("useeffect called, isExportingGif: ", isExportingGif);
+    if (!isExportingGif) return;
+
+    console.log("Exporting gif");
+    setIsExportingGif(false);
+
+    // TODO: set background color from bgFabRef to mainFabRef
+
+    // create readstream
+
+    // start encoder
+
+    // for (frame in frames)
+    // {
+    //    // load frame data to canvas
+    //    // get canvas data
+    //    // encoder.addFrame ( canvas data of current frame )
+    // }
+
+    // end encoder
+  }, [isExportingGif]);
 
   /**
    * Load drawing state from frames[currentFrame] to canvas
@@ -288,6 +328,27 @@ function App() {
             className="w-6 h-6"
           >
             <path d="M15 6.75a.75.75 0 0 0-.75.75V18a.75.75 0 0 0 .75.75h.75a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75H15ZM20.25 6.75a.75.75 0 0 0-.75.75V18c0 .414.336.75.75.75H21a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75h-.75ZM5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L5.055 7.061Z" />
+          </svg>
+        </button>
+        <button
+          title="Export GIF"
+          className="btn"
+          onClick={() =>
+            selectTimelineButton({ button: TimelineButton.EXPORT })
+          }
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              fillRule="evenodd"
+              d="M9.75 6.75h-3a3 3 0 0 0-3 3v7.5a3 3 0 0 0 3 3h7.5a3 3 0 0 0 3-3v-7.5a3 3 0 0 0-3-3h-3V1.5a.75.75 0 0 0-1.5 0v5.25Zm0 0h1.5v5.69l1.72-1.72a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 1 1 1.06-1.06l1.72 1.72V6.75Z"
+              clipRule="evenodd"
+            />
+            <path d="M7.151 21.75a2.999 2.999 0 0 0 2.599 1.5h7.5a3 3 0 0 0 3-3v-7.5c0-1.11-.603-2.08-1.5-2.599v7.099a4.5 4.5 0 0 1-4.5 4.5H7.151Z" />
           </svg>
         </button>
         {/* TIMELINE LIST */}
