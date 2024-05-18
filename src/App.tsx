@@ -14,7 +14,7 @@ function App() {
 
   return (
     <div>
-      <div>TIMELINE</div>
+      <div className="text-blue-500">TIMELINE</div>
       <div>CANVASes</div>
       <div>PROPERTIES</div>
     </div>
