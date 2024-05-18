@@ -8,8 +8,8 @@ While the core functionalities are in place, we have several exciting features a
 
 # Tech stack
 - React + TypeScript
-- [Vite](https://github.com/vitejs/vite)
-- [Fabric](https://github.com/fabricjs)
+- [Vite](https://vitejs.dev)
+- [Fabric](http://jnordberg.github.io/gif.js/)
 - [Gif.js](https://github.com/jnordberg/gif.js)
 
 
