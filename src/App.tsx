@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fabric } from "fabric";
-import { GifEncoder } from "@skyra/gifenc";
+import GIF from "gif.js";
 
 function App() {
   // Fabric refs
@@ -208,22 +208,20 @@ function App() {
     if (!isExportingGif) return;
 
     console.log("Exporting gif");
-    setIsExportingGif(false);
+
+    // Instantiate gif.js
+    const encoder = new GIF({
+      workers: 2,
+      quality: 10,
+    });
+
+    // Add frames to gif
+    // frames.forEach((frame) => {});
+
+    // encoder.render();
 
     // TODO: set background color from bgFabRef to mainFabRef
-
-    // create readstream
-
-    // start encoder
-
-    // for (frame in frames)
-    // {
-    //    // load frame data to canvas
-    //    // get canvas data
-    //    // encoder.addFrame ( canvas data of current frame )
-    // }
-
-    // end encoder
+    setIsExportingGif(false);
   }, [isExportingGif]);
 
   /**
