@@ -6,7 +6,13 @@ function App() {
   const onionFabRef = useRef<fabric.Canvas | null>(null);
   const bgFabRef = useRef<fabric.Canvas | null>(null);
 
-  return <div>Hello, World !</div>;
+  return (
+    <div>
+      <div>TIMELINE</div>
+      <div>CANVASes</div>
+      <div>PROPERTIES</div>
+    </div>
+  );
 }
 
 export default App;
