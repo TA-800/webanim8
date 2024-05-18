@@ -6,4 +6,7 @@
     .btn {
         @apply p-2 bg-blue-700 hover:bg-blue-800 text-white rounded-md;
     }
+    .btn-active {
+        @apply outline outline-black;
+    }
 }
