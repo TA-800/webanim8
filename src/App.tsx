@@ -19,7 +19,12 @@ function App() {
   // TODO: use better type for frames
   const [frames, setFrames] = useState<any[]>([null]);
   const [currentFrame, setCurrentFrame] = useState(0);
-  const [onionSkin, setOnionSkin] = useState(false);
+  const [isOnionSkinEnabled, setIsOnionSkinEnabled] = useState(false);
+
+  // animation is playing then interval id is stored here, else null
+  const [animationIntervalId, setAnimationIntervalId] = useState<number | null>(
+    null,
+  );
 
   /**
    * HELPER FUNCTIONS
@@ -125,7 +130,27 @@ function App() {
   };
 
   const playAnimation = () => {
-    //TODO
+    if (frames.length <= 1) return;
+    // Simply use setCurrentFrame to move to frame (frame is rendered on currentFrame change with useEffect)
+
+    // if animation is playing when play button is clicked, stop the animation
+    if (animationIntervalId) {
+      clearInterval(animationIntervalId);
+      setAnimationIntervalId(null);
+      // TODO: if onion skin is enabled then re-enable it here
+      return;
+    }
+
+    // else, start the animation
+    // TODO: clear onion skin canvas here before starting animation
+    // onionFabRef.current!.clear(); ??
+    // don't disable onion skin, just temporarily hide it during anim playback
+
+    // play frames in loop
+    const intervalId = setInterval(() => {
+      setCurrentFrame((prev) => (prev + 1) % frames.length);
+    }, 1000 / fps);
+    setAnimationIntervalId(intervalId);
   };
   const changeBackgroundColor = (color: string) => {
     bgFabRef.current!.setBackgroundColor(color, () => {
@@ -137,8 +162,13 @@ function App() {
     // TODO: implement onion skin
   };
 
-  // frame rendering on current frame change
+  /**
+   * Load drawing state from frames[currentFrame] to canvas
+   * Render only with useEffect to avoid conflicts with React's async batch rendering
+   */
   useEffect(() => {
+    // TODO: implement onion skin
+
     // Render current frame's drawing state
     if (!mainFabRef.current) return;
 
