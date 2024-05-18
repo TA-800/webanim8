@@ -16,17 +16,31 @@ function App() {
   const [selectedTool, setSelectedTool] = useState<"select" | "brush">("brush");
 
   const [fps, setFps] = useState(24);
+  // TODO: use better type for frames
   const [frames, setFrames] = useState<any[]>([]);
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [onionSkin, setOnionSkin] = useState(false);
 
   // frame rendering on current frame change
   // TODO
+  const changeBackgroundColor = (color: string) => {
+    bgFabRef.current!.setBackgroundColor(color, () => {
+      bgFabRef.current!.renderAll();
+    });
+  };
+
+  const renderOnionSkin = (checked: boolean) => {
+    // TODO: implement onion skin
+  };
 
   // initialization
   useEffect(() => {
     mainFabRef.current = new fabric.Canvas(mainCanvasRef.current);
     onionFabRef.current = new fabric.Canvas(onionCanvasRef.current);
     bgFabRef.current = new fabric.Canvas(bgCanvasRef.current);
+
+    // set freedrawing mode during startup
+    mainFabRef.current.isDrawingMode = true;
 
     return () => {
       mainFabRef.current?.dispose();
@@ -37,23 +51,23 @@ function App() {
 
   return (
     /* MAIN WRAPPER, make grid to center the content */
-    <div className="grid grid-cols-1 grid-rows-1 w-full h-full place-items-center outline outline-blue-500">
+    <div className="grid grid-cols-1 grid-rows-1 w-full h-full place-items-center out">
       <div>TIMELINE</div>
       <div className="relative grid grid-cols-1 grid-rows-1 w-[600px] h-[600px]">
         {/* BACKGROUND CANVAS */}
-        <div className="absolute top-0 left-0 outline outline-black">
+        <div className="absolute top-0 left-0 out">
           <canvas width={600} height={600} ref={bgCanvasRef} />
         </div>
         {/* ONION CANVAS */}
-        <div className="absolute top-0 left-0 outline outline-black">
+        <div className="absolute top-0 left-0 out">
           <canvas width={600} height={600} ref={onionCanvasRef} />
         </div>
         {/* MAIN CANVAS */}
-        <div className="absolute top-0 left-0 outline outline-black">
+        <div className="absolute top-0 left-0 out">
           <canvas width={600} height={600} ref={mainCanvasRef} />
         </div>
       </div>
-      <div className="flex flex-row gap-2 p-2 outline outline-black">
+      <div className="flex flex-row gap-2 p-2 out">
         <button
           className={`btn ${selectedTool === "select" ? "btn-active" : ""}`}
           onClick={(e) => {
@@ -96,7 +110,60 @@ function App() {
         </button>
       </div>
 
-      <div>PROPERTIES</div>
+      <div className="out">
+        PROPERTIES
+        {selectedTool === "select" && (
+          <div>
+            <div className="flex flex-row gap-2 items-center">
+              <label>Background</label>
+              <input
+                type="color"
+                onChange={(e) => changeBackgroundColor(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-row gap-2 items-center">
+              <label>Frame Rate</label>
+              <input
+                type="number"
+                value={fps}
+                onChange={(e) => setFps(parseInt(e.target.value))}
+              />
+            </div>
+            <div className="flex flex-row gap-2 items-center">
+              <label>Onion Skin</label>
+              <input
+                type="checkbox"
+                onChange={(e) => {
+                  renderOnionSkin(e.target.checked);
+                }}
+              />
+            </div>
+          </div>
+        )}
+        {selectedTool === "brush" && (
+          <div>
+            <div className="flex flex-row gap-2 items-center">
+              <label>Size</label>
+              <input
+                type="range"
+                defaultValue={1}
+                min={1}
+                max={50}
+                step={1}
+                onChange={(e) => {
+                  mainFabRef.current!.freeDrawingBrush.width = parseInt(
+                    e.target.value,
+                  );
+                }}
+              />
+            </div>
+            <div className="flex flex-row gap-2 items-center">
+              <label>Color</label>
+              <input type="color" />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
