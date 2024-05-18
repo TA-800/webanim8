@@ -3,10 +3,13 @@ Ever wanted to share some silly, custom-made memes with your friends? Our web ap
 # TO DO
 While the core functionalities are in place, we have several exciting features and improvements planned for future updates. Here's what we're working on:
 
-- pre-drawn shapes
-- undo/redo function
 - dark mode
-- backend functionality to allow users to sign in and
-- save their work
+- backend functionality to allow users to sign in and save their work
+
+# Tech stack
+- React + TypeScript
+- [Vite](https://github.com/vitejs/vite)
+- [Fabric](https://github.com/fabricjs)
+- [Gif.js](https://github.com/jnordberg/gif.js)
 
 
