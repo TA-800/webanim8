@@ -51,6 +51,18 @@ function App() {
     setCurrentFrame(index);
   };
 
+  const removeCurrentFrame = () => {
+    if (frames.length <= 1) return;
+    if (animationIntervalId !== null) return;
+    moveToFrame(currentFrame - 1);
+    setFrames((prev) => {
+      const newFrames = [...prev];
+      // remove the frame that we just moved back from
+      newFrames.splice(currentFrame, 1);
+      return newFrames;
+    });
+  };
+
   const addNewFrame = () => {
     // insert new frame after current frame
     setFrames((prev) => {
@@ -75,6 +87,7 @@ function App() {
 
   enum TimelineButton {
     NEW_KEYFRAME,
+    REMOVE_KEYFRAME,
     DUP_KEYFRAME,
     PLAY,
     EXPORT,
@@ -97,6 +110,9 @@ function App() {
         break;
       case TimelineButton.NEW_KEYFRAME:
         addNewFrame();
+        break;
+      case TimelineButton.REMOVE_KEYFRAME:
+        removeCurrentFrame();
         break;
       case TimelineButton.DUP_KEYFRAME:
         duplicateFrame();
@@ -347,6 +363,27 @@ function App() {
             <path
               fillRule="evenodd"
               d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+
+        <button
+          title="Delete frame"
+          className="btn"
+          onClick={() =>
+            selectTimelineButton({ button: TimelineButton.REMOVE_KEYFRAME })
+          }
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              fillRule="evenodd"
+              d="M4.25 12a.75.75 0 0 1 .75-.75h14a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1-.75-.75Z"
               clipRule="evenodd"
             />
           </svg>
