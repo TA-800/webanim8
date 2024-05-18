@@ -8,7 +8,7 @@
     }
     .btn
     {
-        @apply w-11 h-11 grid place-items-center border-2 border-black/25 text-black rounded-md hover:bg-black/10 active:bg-black/20;
+        @apply w-11 h-11 grid place-items-center border-2 border-black/25 text-black rounded-md bg-white hover:bg-black/10 active:bg-black/20;
     }
     .toggle {
         @apply w-11 h-11 grid place-items-center bg-blue-600 hover:bg-blue-700 text-white rounded-md;
