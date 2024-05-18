@@ -19,12 +19,19 @@ function App() {
   // TODO: use better type for frames
   const [frames, setFrames] = useState<any[]>([null]);
   const [currentFrame, setCurrentFrame] = useState(0);
-  const [isOnionSkinEnabled, setIsOnionSkinEnabled] = useState(false);
+  const [isOnionSkinEnabled, _setIsOnionSkinEnabled] = useState(false);
 
   // animation is playing then interval id is stored here, else null
   const [animationIntervalId, setAnimationIntervalId] = useState<number | null>(
     null,
   );
+
+  // common onion skin is-renderable conditions
+  const onionToRender =
+    // don't rely on isOnionSkinEnabled directly in this condition due to state snapshotting
+    onionCanvasRef.current && // onion skin canvas is initialized
+    currentFrame > 0 && // there is a previous frame to render
+    frames[currentFrame - 1] !== null; // previous frame is not empty (unlikely)
 
   /**
    * HELPER FUNCTIONS
@@ -129,6 +136,31 @@ function App() {
     mainFabRef.current!.remove(...mainFabRef.current!.getObjects());
   };
 
+  const renderOnionSkin = () => {
+    // load JSON data into the fabric instance
+    onionFabRef.current!.loadFromJSON(frames[currentFrame - 1], () => {
+      // callback: on load complete, set each obj to 50% opacity and disable selection
+      onionFabRef.current!.getObjects().forEach((obj) => {
+        obj.set({ opacity: 0.5, selectable: false, evented: false });
+      });
+      // and then render the canvas with all (modified) objects loaded into fabric instance
+      onionFabRef.current!.renderAll();
+    });
+  };
+
+  const setIsOnionSkinEnabled = (checked: boolean) => {
+    _setIsOnionSkinEnabled(checked);
+    if (!checked) {
+      // clear onion skin canvas
+      onionFabRef.current!.clear();
+    } else {
+      // force a quick render when onion skin is turned on (checkbox)
+      if (onionToRender) {
+        renderOnionSkin();
+      }
+    }
+  };
+
   const playAnimation = () => {
     if (frames.length <= 1) return;
     // Simply use setCurrentFrame to move to frame (frame is rendered on currentFrame change with useEffect)
@@ -137,14 +169,14 @@ function App() {
     if (animationIntervalId) {
       clearInterval(animationIntervalId);
       setAnimationIntervalId(null);
-      // TODO: if onion skin is enabled then re-enable it here
+      if (isOnionSkinEnabled && onionToRender) {
+        renderOnionSkin();
+      }
       return;
     }
 
     // else, start the animation
-    // TODO: clear onion skin canvas here before starting animation
-    // onionFabRef.current!.clear(); ??
-    // don't disable onion skin, just temporarily hide it during anim playback
+    onionFabRef.current!.clear();
 
     // play frames in loop
     const intervalId = setInterval(() => {
@@ -152,22 +184,20 @@ function App() {
     }, 1000 / fps);
     setAnimationIntervalId(intervalId);
   };
-  const changeBackgroundColor = (color: string) => {
-    bgFabRef.current!.setBackgroundColor(color, () => {
-      bgFabRef.current!.renderAll();
-    });
-  };
-
-  const renderOnionSkin = (checked: boolean) => {
-    // TODO: implement onion skin
-  };
 
   /**
    * Load drawing state from frames[currentFrame] to canvas
    * Render only with useEffect to avoid conflicts with React's async batch rendering
    */
   useEffect(() => {
-    // TODO: implement onion skin
+    if (animationIntervalId === null && isOnionSkinEnabled && onionToRender) {
+      renderOnionSkin();
+    }
+    // clear onion skin if there any above conditions are not met (extra check)
+    // keep ? optional chaining to avoid issues
+    else if (!onionFabRef.current?.isEmpty()) {
+      onionFabRef.current?.clear();
+    }
 
     // Render current frame's drawing state
     if (!mainFabRef.current) return;
@@ -180,7 +210,7 @@ function App() {
     }
 
     // else, load drawing state from frames[currentFrame]
-    mainFabRef.current?.loadFromJSON(frames[currentFrame], () => {
+    mainFabRef.current.loadFromJSON(frames[currentFrame], () => {
       mainFabRef.current!.renderAll();
     });
   }, [currentFrame]);
@@ -363,7 +393,11 @@ function App() {
               <label>Background</label>
               <input
                 type="color"
-                onChange={(e) => changeBackgroundColor(e.target.value)}
+                onChange={(e) => {
+                  bgFabRef.current!.setBackgroundColor(e.target.value, () => {
+                    bgFabRef.current!.renderAll();
+                  });
+                }}
               />
             </div>
             <div className="flex flex-row gap-2 items-center">
@@ -379,7 +413,7 @@ function App() {
               <input
                 type="checkbox"
                 onChange={(e) => {
-                  renderOnionSkin(e.target.checked);
+                  setIsOnionSkinEnabled(e.target.checked);
                 }}
               />
             </div>
