@@ -14,9 +14,7 @@ function App() {
   const bgCanvasRef = useRef(null);
 
   // animation states & properties
-  const [selectedTool, setSelectedTool] = useState<
-    "select" | "brush" | "eraser"
-  >("brush");
+  const [selectedTool, setSelectedTool] = useState<"select" | "brush">("brush");
 
   const [fps, setFps] = useState(24);
   // TODO: use better type for frames
@@ -116,7 +114,6 @@ function App() {
     // eraser -> todo
     SELECT,
     BRUSH,
-    ERASER,
     CLEAR,
   }
   const selectToolbarButton = (button: ToolbarButton) => {
@@ -130,11 +127,6 @@ function App() {
       case ToolbarButton.BRUSH:
         setSelectedTool("brush");
         mainFabRef.current!.isDrawingMode = true;
-        break;
-      case ToolbarButton.ERASER:
-        // TODO
-        mainFabRef.current!.isDrawingMode = false;
-        setSelectedTool("eraser");
         break;
       case ToolbarButton.CLEAR:
         clearCanvas();
@@ -500,24 +492,6 @@ function App() {
           </button>
 
           <button
-            title="Eraser"
-            className={`toggle ${selectedTool === "eraser" ? "toggle-active" : ""}`}
-            onClick={() => selectToolbarButton(ToolbarButton.ERASER)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              id="Layer_1"
-              data-name="Layer 1"
-              viewBox="0 0 24 24"
-              width="22"
-              height="22"
-              style={{ fill: "white" }}
-            >
-              <path d="m7.242,7.438L12.751,1.911c1.17-1.175,3.213-1.175,4.383,0l5.935,5.955c1.206,1.21,1.206,3.179,0,4.389l-5.506,5.525L7.242,7.438Zm7.111,13.562l1.798-1.804L5.83,8.855.882,13.82c-1.206,1.21-1.206,3.179,0,4.389l4.774,4.791h18.344v-2h-9.647Z" />
-            </svg>
-          </button>
-
-          <button
             title="Clear"
             className="btn"
             onClick={() => selectToolbarButton(ToolbarButton.CLEAR)}
@@ -593,19 +567,6 @@ function App() {
                 <label>Color</label>
                 <input type="color" />
               </div>
-            </div>
-          )}
-          {selectedTool === "eraser" && (
-            <div className="propsPanel">
-              <label>Size</label>
-              <input
-                type="range"
-                defaultValue={1}
-                min={1}
-                max={50}
-                step={1}
-                onChange={() => {}}
-              />
             </div>
           )}
         </div>
