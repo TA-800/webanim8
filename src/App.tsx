@@ -9,7 +9,7 @@ function App() {
   const bgFabRef = useRef<fabric.Canvas | null>(null);
 
   // Canvas references
-  const mainCanvasRef = useRef(null);
+  const mainCanvasRef = useRef<HTMLCanvasElement>(null);
   const onionCanvasRef = useRef(null);
   const bgCanvasRef = useRef(null);
 
@@ -204,7 +204,6 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("useeffect called, isExportingGif: ", isExportingGif);
     if (!isExportingGif) return;
 
     console.log("Exporting gif");
@@ -213,14 +212,43 @@ function App() {
     const encoder = new GIF({
       workers: 2,
       quality: 10,
+      workerScript: "node_modules/gif.js/dist/gif.worker.js",
     });
 
-    // Add frames to gif
-    // frames.forEach((frame) => {});
+    // set background
+    // (todo)
+    // mainFabRef.current!.backgroundColor = bgFabRef.current!.backgroundColor;
 
-    // encoder.render();
+    // load drawing state from frames array
+    frames.forEach((frame) => {
+      clearCanvas();
 
-    // TODO: set background color from bgFabRef to mainFabRef
+      mainFabRef.current!.loadFromJSON(frame, () => {
+        mainFabRef.current!.renderAll();
+        encoder.addFrame(mainFabRef.current!.getElement(), {
+          copy: true,
+          delay: 1000 / fps,
+        });
+      });
+    });
+
+    encoder.on("finished", (blob) => {
+      // download the gif
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "animation.gif";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    encoder.render();
+
+    // unset background (todo)
+    // mainFabRef.current!.backgroundColor = "transparent";
+
+    // todo: move back to original frame
+
     setIsExportingGif(false);
   }, [isExportingGif]);
 
@@ -262,6 +290,9 @@ function App() {
 
     // set freedrawing mode during startup (sync with default selected tool state)
     mainFabRef.current.isDrawingMode = true;
+    mainFabRef.current.setBackgroundColor("white", () => {
+      mainFabRef.current!.renderAll();
+    });
 
     return () => {
       mainFabRef.current?.dispose();
