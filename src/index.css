@@ -13,3 +13,12 @@
         @apply outline outline-blue-900;
     }
 }
+
+/* Add thin scrollbar to everything using regular scrollbar (not webkit) */
+* {
+    /* Reference: https://css-tricks.com/almanac/properties/s/scrollbar-gutter/ */
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+                    /* thumb | track */
+    scrollbar-color: #282828 #ffffff;
+}
