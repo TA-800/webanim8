@@ -745,7 +745,7 @@ function App() {
                 <label>Size</label>
                 <input
                   type="range"
-                  defaultValue={1}
+                  defaultValue={mainFabRef.current?.freeDrawingBrush.width ?? 1}
                   min={1}
                   max={50}
                   step={1}
