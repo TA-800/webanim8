@@ -191,6 +191,26 @@ function App() {
     setAnimationIntervalId(intervalId);
   };
 
+  const setBackgroundForExport = () => {
+    setFrames((prev) => {
+      const newFrames = [...prev];
+      newFrames.forEach((frame) => {
+        frame.backgroundColor = "white";
+      });
+      return newFrames;
+    });
+  };
+
+  const unsetBackgroundAfterExport = () => {
+    setFrames((prev) => {
+      const newFrames = [...prev];
+      newFrames.forEach((frame) => {
+        frame.backgroundColor = "transparent";
+      });
+      return newFrames;
+    });
+  };
+
   /**
    * Gif Exporting
    */
@@ -200,6 +220,14 @@ function App() {
     if (animationIntervalId) {
       selectTimelineButton({ button: TimelineButton.PLAY });
     }
+    // mainFabRef.current!.setBackgroundColor("white", () => {
+    //   setIsExportingGif(true);
+    // });
+
+    // set all frames to white background
+    setBackgroundForExport();
+    // todo: undo this after exporting gif
+
     setIsExportingGif(true);
   };
 
@@ -218,8 +246,9 @@ function App() {
     // set background
     // (todo)
     // mainFabRef.current!.backgroundColor = bgFabRef.current!.backgroundColor;
+    // Everything is called in callback to ensure things happen sequentially (something shouldn't be called before previous async-nature operation completes)
 
-    // load drawing state from frames array
+    // LOOP
     frames.forEach((frame) => {
       clearCanvas();
 
@@ -231,6 +260,7 @@ function App() {
         });
       });
     });
+    // END LOOP
 
     encoder.on("finished", (blob) => {
       // download the gif
@@ -244,10 +274,10 @@ function App() {
 
     encoder.render();
 
-    // unset background (todo)
-    // mainFabRef.current!.backgroundColor = "transparent";
-
     // todo: move back to original frame
+
+    // reset background (todo)
+    unsetBackgroundAfterExport();
 
     setIsExportingGif(false);
   }, [isExportingGif]);
@@ -290,9 +320,6 @@ function App() {
 
     // set freedrawing mode during startup (sync with default selected tool state)
     mainFabRef.current.isDrawingMode = true;
-    mainFabRef.current.setBackgroundColor("white", () => {
-      mainFabRef.current!.renderAll();
-    });
 
     return () => {
       mainFabRef.current?.dispose();
