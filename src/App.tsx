@@ -528,178 +528,186 @@ function App() {
 
   return (
     /* MAIN WRAPPER */
-    <div className="w-full h-full bg-gray-200">
+    <div className="w-full h-full">
       {/**
        * TIMELINE
        */}
-      <div className="w-full flex flex-row flex-wrap gap-2 p-2 justify-center">
-        <button
-          title="Add frame"
-          className="btn"
-          onClick={() =>
-            selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME })
-          }
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+      <div className="w-full p-2">
+        <div className="w-full border-2 border-black/15 rounded-md flex gap-2 p-2 justify-center">
+          <button
+            title="Add frame"
+            className="btn"
+            onClick={() =>
+              selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME })
+            }
           >
-            <path
-              fillRule="evenodd"
-              d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
 
-        <button
-          title="Delete frame"
-          className="btn"
-          onClick={() =>
-            selectTimelineButton({ button: TimelineButton.REMOVE_KEYFRAME })
-          }
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+          <button
+            title="Delete frame"
+            className="btn"
+            onClick={() =>
+              selectTimelineButton({ button: TimelineButton.REMOVE_KEYFRAME })
+            }
           >
-            <path
-              fillRule="evenodd"
-              d="M4.25 12a.75.75 0 0 1 .75-.75h14a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1-.75-.75Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-        <button
-          title="Duplicate Frame"
-          className="btn"
-          onClick={() =>
-            selectTimelineButton({ button: TimelineButton.DUP_KEYFRAME })
-          }
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.25 12a.75.75 0 0 1 .75-.75h14a.75.75 0 0 1 0 1.5H5a.75.75 0 0 1-.75-.75Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          <button
+            title="Duplicate Frame"
+            className="btn"
+            onClick={() =>
+              selectTimelineButton({ button: TimelineButton.DUP_KEYFRAME })
+            }
           >
-            <path d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 0 1 3.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0 1 21 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 0 1 7.5 16.125V3.375Z" />
-            <path d="M15 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 17.25 7.5h-1.875A.375.375 0 0 1 15 7.125V5.25ZM4.875 6H6v10.125A3.375 3.375 0 0 0 9.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V7.875C3 6.839 3.84 6 4.875 6Z" />
-          </svg>
-        </button>
-        <button
-          title={animationIntervalId !== null ? "Stop" : "Play"}
-          className={`toggle ${animationIntervalId ? "toggle-active" : ""}`}
-          onClick={() => selectTimelineButton({ button: TimelineButton.PLAY })}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M7.5 3.375c0-1.036.84-1.875 1.875-1.875h.375a3.75 3.75 0 0 1 3.75 3.75v1.875C13.5 8.161 14.34 9 15.375 9h1.875A3.75 3.75 0 0 1 21 12.75v3.375C21 17.16 20.16 18 19.125 18h-9.75A1.875 1.875 0 0 1 7.5 16.125V3.375Z" />
+              <path d="M15 5.25a5.23 5.23 0 0 0-1.279-3.434 9.768 9.768 0 0 1 6.963 6.963A5.23 5.23 0 0 0 17.25 7.5h-1.875A.375.375 0 0 1 15 7.125V5.25ZM4.875 6H6v10.125A3.375 3.375 0 0 0 9.375 19.5H16.5v1.125c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 0 1 3 20.625V7.875C3 6.839 3.84 6 4.875 6Z" />
+            </svg>
+          </button>
+          <button
+            title={animationIntervalId !== null ? "Stop" : "Play"}
+            className={`toggle ${animationIntervalId ? "toggle-active" : ""}`}
+            onClick={() =>
+              selectTimelineButton({ button: TimelineButton.PLAY })
+            }
           >
-            <path d="M15 6.75a.75.75 0 0 0-.75.75V18a.75.75 0 0 0 .75.75h.75a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75H15ZM20.25 6.75a.75.75 0 0 0-.75.75V18c0 .414.336.75.75.75H21a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75h-.75ZM5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L5.055 7.061Z" />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M15 6.75a.75.75 0 0 0-.75.75V18a.75.75 0 0 0 .75.75h.75a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75H15ZM20.25 6.75a.75.75 0 0 0-.75.75V18c0 .414.336.75.75.75H21a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75h-.75ZM5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L5.055 7.061Z" />
+            </svg>
+          </button>
 
-        {/* separator */}
-        <div className="h-11 w-1 bg-black/75 rounded-sm" />
+          {/* separator */}
+          <div className="h-11 w-1 bg-black/75 rounded-sm" />
 
-        <button
-          title="Export GIF"
-          className="btn"
-          onClick={() =>
-            selectTimelineButton({ button: TimelineButton.EXPORT })
-          }
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+          <button
+            title="Export GIF"
+            className="btn"
+            onClick={() =>
+              selectTimelineButton({ button: TimelineButton.EXPORT })
+            }
           >
-            <path
-              fillRule="evenodd"
-              d="M9.75 6.75h-3a3 3 0 0 0-3 3v7.5a3 3 0 0 0 3 3h7.5a3 3 0 0 0 3-3v-7.5a3 3 0 0 0-3-3h-3V1.5a.75.75 0 0 0-1.5 0v5.25Zm0 0h1.5v5.69l1.72-1.72a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 1 1 1.06-1.06l1.72 1.72V6.75Z"
-              clipRule="evenodd"
-            />
-            <path d="M7.151 21.75a2.999 2.999 0 0 0 2.599 1.5h7.5a3 3 0 0 0 3-3v-7.5c0-1.11-.603-2.08-1.5-2.599v7.099a4.5 4.5 0 0 1-4.5 4.5H7.151Z" />
-          </svg>
-        </button>
-        <button
-          title="Save"
-          className="btn"
-          onClick={() => selectTimelineButton({ button: TimelineButton.SAVE })}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9.75 6.75h-3a3 3 0 0 0-3 3v7.5a3 3 0 0 0 3 3h7.5a3 3 0 0 0 3-3v-7.5a3 3 0 0 0-3-3h-3V1.5a.75.75 0 0 0-1.5 0v5.25Zm0 0h1.5v5.69l1.72-1.72a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 1 1 1.06-1.06l1.72 1.72V6.75Z"
+                clipRule="evenodd"
+              />
+              <path d="M7.151 21.75a2.999 2.999 0 0 0 2.599 1.5h7.5a3 3 0 0 0 3-3v-7.5c0-1.11-.603-2.08-1.5-2.599v7.099a4.5 4.5 0 0 1-4.5 4.5H7.151Z" />
+            </svg>
+          </button>
+          <button
+            title="Save"
+            className="btn"
+            onClick={() =>
+              selectTimelineButton({ button: TimelineButton.SAVE })
+            }
           >
-            <path
-              fillRule="evenodd"
-              d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-        <button
-          title="Import"
-          className="btn"
-          onClick={() => {
-            fileInputRef.current!.click();
-          }}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          <button
+            title="Import"
+            className="btn"
+            onClick={() => {
+              fileInputRef.current!.click();
+            }}
           >
-            <path
-              fillRule="evenodd"
-              d="M11.47 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06l-3.22-3.22V16.5a.75.75 0 0 1-1.5 0V4.81L8.03 8.03a.75.75 0 0 1-1.06-1.06l4.5-4.5ZM3 15.75a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-        <input
-          ref={fileInputRef}
-          className="hidden"
-          type="file"
-          accept=".json"
-          onChange={(e) => {
-            selectTimelineButton({
-              button: TimelineButton.IMPORT,
-              file: e.target.files![0],
-            });
-          }}
-        />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path
+                fillRule="evenodd"
+                d="M11.47 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06l-3.22-3.22V16.5a.75.75 0 0 1-1.5 0V4.81L8.03 8.03a.75.75 0 0 1-1.06-1.06l4.5-4.5ZM3 15.75a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          <input
+            ref={fileInputRef}
+            className="hidden"
+            type="file"
+            accept=".json"
+            onChange={(e) => {
+              selectTimelineButton({
+                button: TimelineButton.IMPORT,
+                file: e.target.files![0],
+              });
+            }}
+          />
+        </div>
 
         {/* TIMELINE LIST */}
         {/* Force frame list to be on next flex line in entire wrapper, do this by taking full width*/}
-        <div className="overflow-x-scroll w-full bg-gray-300 flex flex-row gap-2 p-2">
-          {frames.map((_, index) => {
-            return (
-              <div
-                key={index}
-                onClick={() => {
-                  selectTimelineButton({
-                    button: TimelineButton.TIMELINE_KEYFRAME,
-                    index: index,
-                  });
-                }}
-                className={`h-7 min-w-7 flex justify-center cursor-pointer rounded-sm ${currentFrame === index ? "bg-blue-900 text-blue-300" : "bg-blue-300 text-blue-900"}`}
-              >
-                {index}
-              </div>
-            );
-          })}
+        <div className="p-2 mt-2 bg-gray-300 border-2 border-black/15 rounded-md w-full">
+          <div className="overflow-x-scroll w-full flex flex-row gap-2 p-2">
+            {frames.map((_, index) => {
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    selectTimelineButton({
+                      button: TimelineButton.TIMELINE_KEYFRAME,
+                      index: index,
+                    });
+                  }}
+                  className={`h-7 min-w-7 flex justify-center cursor-pointer rounded-sm ${currentFrame === index ? "bg-blue-900 text-blue-300" : "bg-blue-300 text-blue-900"}`}
+                >
+                  {index}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -728,7 +736,7 @@ function App() {
         {/**
          * TOOLBAR
          */}
-        <div className="h-full w-24 flex flex-col items-center gap-2 p-2">
+        <div className="h-full w-24 border-2 border-black/15 rounded-md flex flex-col items-center gap-2 p-2">
           <button
             title="Select"
             className={`toggle ${selectedTool === "select" ? "toggle-active" : ""}`}
@@ -862,7 +870,7 @@ function App() {
         {/**
          * PROPERTIES PANEL
          */}
-        <div className="h-full">
+        <div className="h-[375.2px]">
           {selectedTool === "select" && (
             <div className="propsPanel">
               <div className="flex flex-row gap-2 items-center">

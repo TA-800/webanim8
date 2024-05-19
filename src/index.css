@@ -18,7 +18,7 @@
     }
 
     .propsPanel {
-        @apply flex flex-col gap-2 p-4 border-2 border-black/15 rounded-md w-80;
+        @apply flex flex-col gap-2 p-4 h-full border-2 border-black/15 rounded-md w-80;
     }
 }
 
@@ -29,4 +29,8 @@
     scrollbar-width: thin;
                     /* thumb | track */
     scrollbar-color: #d1d5db #f3f4f6;
+}
+
+body {
+    background-color: #f3f4f6;
 }
