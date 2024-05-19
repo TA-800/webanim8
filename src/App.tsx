@@ -15,6 +15,10 @@ function App() {
   // Input references
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Refs to buttons for shortcuts (simply call ref.current.click() to invoke click event)
+  const addKeyframeButtonRef = useRef<HTMLButtonElement>(null);
+  const undoButtonRef = useRef<HTMLButtonElement>(null);
+
   // animation states & properties
   const [selectedTool, setSelectedTool] = useState<"select" | "brush">("brush");
 
@@ -497,6 +501,14 @@ function App() {
     }
   }, [currentFrame]);
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "a") {
+      addKeyframeButtonRef.current?.click();
+    } else if (e.key === "z") {
+      undoButtonRef.current?.click();
+    }
+  };
+
   // initialization
   useEffect(() => {
     mainFabRef.current = new fabric.Canvas(mainCanvasRef.current);
@@ -515,10 +527,15 @@ function App() {
     mainFabRef.current.on("object:modified", pushOntoUndoStack);
     mainFabRef.current.on("object:added", pushOntoUndoStack);
 
+    // setup event listeners for shortcuts (a to add frame, z to undo)
+    document.addEventListener("keydown", handleKeyDown);
+
     return () => {
       // cleanup
       mainFabRef.current?.off("object:modified", pushOntoUndoStack);
       mainFabRef.current?.off("object:added", pushOntoUndoStack);
+
+      document.removeEventListener("keydown", handleKeyDown);
 
       mainFabRef.current?.dispose();
       onionFabRef.current?.dispose();
@@ -536,6 +553,7 @@ function App() {
         <div className="w-full border-2 border-black/15 rounded-md flex gap-2 p-2 justify-center">
           <button
             title="Add frame"
+            ref={addKeyframeButtonRef}
             className="btn"
             onClick={() =>
               selectTimelineButton({ button: TimelineButton.NEW_KEYFRAME })
@@ -833,6 +851,7 @@ function App() {
           <button
             title="Undo"
             className="btn"
+            ref={undoButtonRef}
             onClick={() => selectToolbarButton(ToolbarButton.UNDO)}
           >
             <svg
