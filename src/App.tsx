@@ -99,15 +99,24 @@ function App() {
     PLAY,
     EXPORT,
     SAVE,
+    IMPORT,
     TIMELINE_KEYFRAME,
   }
   type TimelineButtonProps =
     | {
-        button: Exclude<TimelineButton, TimelineButton.TIMELINE_KEYFRAME>;
+        // exclude keyframe and import because they require additional data
+        button: Exclude<
+          TimelineButton,
+          TimelineButton.TIMELINE_KEYFRAME | TimelineButton.IMPORT
+        >;
       }
     | {
         button: TimelineButton.TIMELINE_KEYFRAME;
         index: number;
+      }
+    | {
+        button: TimelineButton.IMPORT;
+        file: File;
       };
   const selectTimelineButton = (props: TimelineButtonProps) => {
     saveFrameState();
@@ -130,6 +139,9 @@ function App() {
         break;
       case TimelineButton.SAVE:
         saveProject();
+        break;
+      case TimelineButton.IMPORT:
+        importProject(props.file);
         break;
       case TimelineButton.TIMELINE_KEYFRAME:
         moveToFrame(props.index);
@@ -301,7 +313,67 @@ function App() {
   /**
    * Save Project to user device
    */
-  const saveProject = () => {};
+  const saveProject = () => {
+    // save drawing state on each frame to some json/txt file
+    const data = JSON.stringify(frames);
+
+    const blob = new Blob([data], { type: "application/json" });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "project.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importProject = (file: File) => {
+    console.log("loading project");
+
+    if (!file) return;
+
+    if (
+      !window.confirm(
+        "Loading a new project will remove the current project. Are you sure?",
+      )
+    ) {
+      return;
+    }
+
+    // disable event listeners to prevent pushing undo state onto stack
+    mainFabRef.current!.off("object:added");
+    mainFabRef.current!.off("object:modified");
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        // parse JSON data
+        const data = JSON.parse(e.target!.result as string);
+
+        // clear undo stack
+        undoStack.current = [];
+
+        // load frames
+        setFrames(data);
+
+        // move to first frame to render canvas
+        moveToFrame(0);
+      } catch (e) {
+        alert(
+          "Something went wrong while parsing project. Please try again.\nError: " +
+            e,
+        );
+      }
+    };
+
+    reader.readAsText(file);
+
+    // re-enable event listeners
+    mainFabRef.current!.on("object:added", pushOntoUndoStack);
+    mainFabRef.current!.on("object:modified", pushOntoUndoStack);
+  };
 
   /**
    * Gif Exporting
@@ -566,6 +638,17 @@ function App() {
             />
           </svg>
         </button>
+        <input
+          type="file"
+          accept=".json"
+          onChange={(e) => {
+            selectTimelineButton({
+              button: TimelineButton.IMPORT,
+              file: e.target.files![0],
+            });
+          }}
+        />
+
         {/* TIMELINE LIST */}
         {/* Force frame list to be on next flex line in entire wrapper, do this by taking full width*/}
         <div className="overflow-x-scroll w-full bg-gray-300 flex flex-row gap-2 p-2">
