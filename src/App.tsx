@@ -235,8 +235,7 @@ function App() {
     console.log("undoing, new length will be: ", undoStack.current.length - 1);
 
     // turn off event listeners to prevent pushing undo state onto stack
-    mainFabRef.current!.off("object:added");
-    mainFabRef.current!.off("object:modified");
+    turnOffUndoListeners();
 
     undoStack.current.pop();
     mainFabRef.current!.loadFromJSON(
@@ -245,8 +244,7 @@ function App() {
         mainFabRef.current!.renderAll();
 
         // re-enable event listeners
-        mainFabRef.current!.on("object:added", pushOntoUndoStack);
-        mainFabRef.current!.on("object:modified", pushOntoUndoStack);
+        turnOnUndoListeners();
       },
     );
   };
@@ -296,15 +294,13 @@ function App() {
       }
 
       // re-enable event listeners
-      mainFabRef.current!.on("object:added", pushOntoUndoStack);
-      mainFabRef.current!.on("object:modified", pushOntoUndoStack);
+      turnOnUndoListeners();
 
       return;
     }
 
     // turn off event listeners to prevent pushing undo state onto stack
-    mainFabRef.current!.off("object:added");
-    mainFabRef.current!.off("object:modified");
+    turnOffUndoListeners();
 
     // else, start the animation
     onionFabRef.current!.clear();
@@ -346,8 +342,7 @@ function App() {
     }
 
     // disable event listeners to prevent pushing undo state onto stack
-    mainFabRef.current!.off("object:added");
-    mainFabRef.current!.off("object:modified");
+    turnOffUndoListeners();
 
     const reader = new FileReader();
 
@@ -382,9 +377,9 @@ function App() {
     reader.readAsText(file);
 
     // re-enable event listeners
-    mainFabRef.current!.on("object:added", pushOntoUndoStack);
-    mainFabRef.current!.on("object:modified", pushOntoUndoStack);
+    turnOnUndoListeners();
   };
+
 
   /**
    * Gif Exporting
@@ -509,6 +504,17 @@ function App() {
     }
   };
 
+  const turnOnUndoListeners = () => {
+    // event listeners for undo on main canvas (modified, added)
+    mainFabRef.current!.on("object:modified", pushOntoUndoStack);
+    mainFabRef.current!.on("object:added", pushOntoUndoStack);
+  };
+  const turnOffUndoListeners = () => {
+    // turn off event listeners to prevent pushing undo state onto stack
+    mainFabRef.current!.off("object:added");
+    mainFabRef.current!.off("object:modified");
+  };
+
   // initialization
   useEffect(() => {
     mainFabRef.current = new fabric.Canvas(mainCanvasRef.current);
@@ -523,17 +529,14 @@ function App() {
       bgFabRef.current!.renderAll();
     });
 
-    // event listeners for undo on main canvas (modified, added)
-    mainFabRef.current.on("object:modified", pushOntoUndoStack);
-    mainFabRef.current.on("object:added", pushOntoUndoStack);
+    turnOnUndoListeners();
 
     // setup event listeners for shortcuts (a to add frame, z to undo)
     document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       // cleanup
-      mainFabRef.current?.off("object:modified", pushOntoUndoStack);
-      mainFabRef.current?.off("object:added", pushOntoUndoStack);
+      turnOffUndoListeners();
 
       document.removeEventListener("keydown", handleKeyDown);
 
