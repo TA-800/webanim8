@@ -51,6 +51,10 @@ function App() {
   };
 
   const moveToFrame = (index: number) => {
+    // clear undo stack on frame change
+    undoStack.current = [];
+
+    // save current frame state
     setCurrentFrame(index);
   };
 
@@ -94,6 +98,7 @@ function App() {
     DUP_KEYFRAME,
     PLAY,
     EXPORT,
+    SAVE,
     TIMELINE_KEYFRAME,
   }
   type TimelineButtonProps =
@@ -122,6 +127,9 @@ function App() {
         break;
       case TimelineButton.EXPORT:
         exportGif();
+        break;
+      case TimelineButton.SAVE:
+        saveProject();
         break;
       case TimelineButton.TIMELINE_KEYFRAME:
         moveToFrame(props.index);
@@ -268,8 +276,17 @@ function App() {
       if (isOnionSkinEnabled && onionToRender) {
         renderOnionSkin();
       }
+
+      // re-enable event listeners
+      mainFabRef.current!.on("object:added", pushOntoUndoStack);
+      mainFabRef.current!.on("object:modified", pushOntoUndoStack);
+
       return;
     }
+
+    // turn off event listeners to prevent pushing undo state onto stack
+    mainFabRef.current!.off("object:added");
+    mainFabRef.current!.off("object:modified");
 
     // else, start the animation
     onionFabRef.current!.clear();
@@ -280,6 +297,11 @@ function App() {
     }, 1000 / fps);
     setAnimationIntervalId(intervalId);
   };
+
+  /**
+   * Save Project to user device
+   */
+  const saveProject = () => {};
 
   /**
    * Gif Exporting
@@ -504,6 +526,7 @@ function App() {
             <path d="M15 6.75a.75.75 0 0 0-.75.75V18a.75.75 0 0 0 .75.75h.75a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75H15ZM20.25 6.75a.75.75 0 0 0-.75.75V18c0 .414.336.75.75.75H21a.75.75 0 0 0 .75-.75V7.5a.75.75 0 0 0-.75-.75h-.75ZM5.055 7.06C3.805 6.347 2.25 7.25 2.25 8.69v8.122c0 1.44 1.555 2.343 2.805 1.628l7.108-4.061c1.26-.72 1.26-2.536 0-3.256L5.055 7.061Z" />
           </svg>
         </button>
+
         <button
           title="Export GIF"
           className="btn"
@@ -523,6 +546,24 @@ function App() {
               clipRule="evenodd"
             />
             <path d="M7.151 21.75a2.999 2.999 0 0 0 2.599 1.5h7.5a3 3 0 0 0 3-3v-7.5c0-1.11-.603-2.08-1.5-2.599v7.099a4.5 4.5 0 0 1-4.5 4.5H7.151Z" />
+          </svg>
+        </button>
+        <button
+          title="Save"
+          className="btn"
+          onClick={() => selectTimelineButton({ button: TimelineButton.SAVE })}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              fillRule="evenodd"
+              d="M12 2.25a.75.75 0 0 1 .75.75v11.69l3.22-3.22a.75.75 0 1 1 1.06 1.06l-4.5 4.5a.75.75 0 0 1-1.06 0l-4.5-4.5a.75.75 0 1 1 1.06-1.06l3.22 3.22V3a.75.75 0 0 1 .75-.75Zm-9 13.5a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z"
+              clipRule="evenodd"
+            />
           </svg>
         </button>
         {/* TIMELINE LIST */}
