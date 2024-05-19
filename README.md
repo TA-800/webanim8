@@ -4,7 +4,8 @@
 Ever wanted to share some silly, quickly-created custom-made GIFs or memes with your friends, or simply just try out animation? Well, our web app Web Anim8 makes it easy to create animations and export them as GIFs, without the need for downloading or dealing with complicated software.
 
 ## Demo
-https://github.com/TA-800/webanim8/assets/116130616/fe21132a-af5c-4094-aa35-1258ff530cfa
+https://github.com/TA-800/webanim8/assets/31612100/3a86c1d3-fe7c-4abb-a62f-a79749ed102c
+
 
 ## Features
 - Canvas: Free drawing (duh) with selection and modification. Add shapes on canvas.
