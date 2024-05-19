@@ -316,9 +316,7 @@ function App() {
   const saveProject = () => {
     // save drawing state on each frame to some json/txt file
     const data = JSON.stringify(frames);
-
     const blob = new Blob([data], { type: "application/json" });
-
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
@@ -360,6 +358,13 @@ function App() {
 
         // move to first frame to render canvas
         moveToFrame(0);
+
+        // if we happened to be on the first frame, manually render canvas
+        if (currentFrame === 0) {
+          mainFabRef.current!.loadFromJSON(data[0], () => {
+            mainFabRef.current!.renderAll();
+          });
+        }
       } catch (e) {
         alert(
           "Something went wrong while parsing project. Please try again.\nError: " +
