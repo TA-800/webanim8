@@ -8,7 +8,7 @@ https://github.com/TA-800/webanim8/assets/31612100/3a86c1d3-fe7c-4abb-a62f-a7974
 
 
 ## Features
-- Canvas: Free drawing (duh) with selection and modification. Add shapes on canvas.
+- Canvas: Free drawing with selection and modification. Add shapes on canvas.
 - Timeline: Add, delete, move between frames.
 - Onion skinning, set framerates, background colors, etc.
 - Export as animated GIF.
