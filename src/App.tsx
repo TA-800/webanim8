@@ -735,7 +735,7 @@ function App() {
       {/**
        * MIDDLE WRAPPER
        */}
-      <div className="w-full flex gap-2 mt-2 justify-center">
+      <div className="w-full flex gap-2 m-2 justify-center">
         {/**
          * CANVASES
          */}
